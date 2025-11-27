@@ -1,0 +1,25 @@
+{
+  "name": "library-app-comments",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "the comment API for my portfolio",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon --inspect=0.0.0.0:9229 src/index.js",
+    "debug": "node --inspect=0.0.0.0:9229 index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "private": true,
+  "author": "damouu",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "mongoose": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "eslint": "^9.39.1",
+    "jest": "^30.2.0",
+    "nodemon": "^3.1.11"
+  }
+}

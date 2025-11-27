@@ -1,0 +1,22 @@
+# Use an official Node.js image (LTS recommended)
+FROM node:lts-alpine as build
+
+# Create app directory
+WORKDIR /app
+
+# Install dependencies separately to leverage Docker layer caching
+COPY package.json package-lock.json* ./
+
+# Install all dependencies (including devDependencies for dev)
+RUN npm install
+
+# Copy the rest of the project
+COPY src/ ./src
+
+# Expose the API port (adjust if needed)
+EXPOSE 3000
+EXPOSE 9229
+
+# Run in development mode using nodemon
+CMD ["npm", "run", "dev"]
+
