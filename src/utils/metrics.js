@@ -9,13 +9,13 @@ register.setDefaultLabels({
 client.collectDefaultMetrics({register});
 
 const httpRequestCounter = new client.Counter({
-    name: 'http_request_total', help: 'total number of HTTP requests', label: ['method', 'route', 'status'],
+    name: 'http_request_total', help: 'total number of HTTP requests', labelNames: ['method', 'route', 'status'],
 });
 
 export const trackRequests = (req, res, next) => {
     res.on('finish', () => {
         httpRequestCounter.inc({
-            method: req.method, route: req.route, status: req.status,
+            method: req.method, route: req.route ? req.route.path : req.path, status: res.statusCode
         });
     });
     next();
