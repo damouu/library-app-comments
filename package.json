@@ -7,7 +7,14 @@
   "scripts": {
     "dev": "nodemon --inspect=0.0.0.0:9229 src/index.js",
     "debug": "node --inspect=0.0.0.0:9229 index.js",
+    "lint": "eslint \"src/**/*.js\"",
+    "prepare": "husky",
     "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix"
+    ]
   },
   "private": true,
   "author": "damouu",
@@ -21,8 +28,11 @@
   },
   "devDependencies": {
     "@types/jest": "^30.0.0",
-    "eslint": "^9.39.1",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0",
+    "husky": "^9.1.7",
     "jest": "^30.2.0",
+    "lint-staged": "^16.2.7",
     "nodemon": "^3.1.11",
     "supertest": "^7.2.2"
   }
