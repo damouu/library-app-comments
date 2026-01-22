@@ -1,23 +1,22 @@
 FROM node:lts-alpine AS builder
 
 WORKDIR /app
-  
+
 COPY package*.json ./
 
 RUN npm install
-  
-COPY . .
 
+COPY . .
 
 FROM node:lts-alpine AS runner
 
 ENV NODE_ENV=production
 
 WORKDIR /app
-  
+
 COPY package*.json ./
-  
-RUN npm ci --only=production
+
+RUN npm ci --omit=dev --ignore-scripts
 
 COPY --from=builder /app/src ./src
 
