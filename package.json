@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "nodemon --inspect=0.0.0.0:9229 src/index.js",
     "debug": "node --inspect=0.0.0.0:9229 index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest"
   },
   "private": true,
   "author": "damouu",
@@ -23,6 +23,7 @@
     "@types/jest": "^30.0.0",
     "eslint": "^9.39.1",
     "jest": "^30.2.0",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "supertest": "^7.2.2"
   }
 }
