@@ -1,14 +1,13 @@
 import {Comment} from "../models/comment.schema.js";
-import {v4 as uuidv4} from "uuid";
 
-export const create = async () => {
+export const create = async (comment, chapterUUID, memberCardUuid, userName, userEmail, avatar_URL) => {
     const userComment = new Comment({
-        memberCardUuid: uuidv4(),
-        chapterUuid: uuidv4(),
-        avatar_URL: 'damsooo',
-        content: 'これは面白くない本です',
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        memberCardUuid: memberCardUuid,
+        chapterUuid: chapterUUID,
+        userName: userName,
+        userEmail: userEmail,
+        avatar_URL: avatar_URL,
+        content: comment,
     })
 
     await userComment.save();
