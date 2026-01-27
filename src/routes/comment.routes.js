@@ -8,4 +8,6 @@ router.post('/chapter/:chapterUuid/comment', authMiddleware, commentController.c
 
 router.put('/comment/:commentUuid', authMiddleware, commentController.updateComment);
 
+router.delete('/comment/:commentUuid', authMiddleware, commentController.deleteComment);
+
 export default router;
