@@ -16,3 +16,24 @@ export const create = async (comment, chapterUUID, memberCardUuid, userName, use
 
     return true
 }
+
+
+export const update = async (comment, commentUuid) => {
+
+    const filter = {commentUuid: commentUuid};
+    const update = {content: comment};
+
+    try {
+
+        const doc = await Comment.findOneAndUpdate(filter, update);
+
+        if (!doc) {
+            throw new Error("Comment not found.");
+        }
+        return true;
+    } catch (e) {
+        console.error("DB Error:", e);
+        throw e;
+    }
+
+};
