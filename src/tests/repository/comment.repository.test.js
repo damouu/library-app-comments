@@ -1,10 +1,9 @@
 import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { create } from '../../repository/comment.repository.js';
-import { Comment } from '../../models/comment.schema.js';
+import {MongoMemoryServer} from 'mongodb-memory-server';
+import * as commentRepository from '../../repository/comment.repository.js';
+import {Comment} from '../../models/comment.schema.js';
 import {v4 as uuid4} from 'uuid';
 
-const VALID_UUID = 'c26b8105-3686-4415-ae16-bf70c58f1b3d';
 let mongoServer;
 
 beforeAll(async () => {
@@ -34,14 +33,7 @@ it('maps arguments correctly and saves a comment', async () => {
         avatar_URL: 'https://avatar.test/img.png',
     };
 
-    const result = await create(
-        input.comment,
-        input.chapterUUID,
-        input.memberCardUuid,
-        input.userName,
-        input.userEmail,
-        input.avatar_URL
-    );
+    const result = await commentRepository.create(input.comment, input.chapterUUID, input.memberCardUuid, input.userName, input.userEmail, input.avatar_URL);
 
     expect(result).toBe(true);
 
@@ -57,4 +49,40 @@ it('maps arguments correctly and saves a comment', async () => {
     expect(saved.avatar_URL).toBe(input.avatar_URL);
 
     expect(saved.commentUuid).toBeDefined();
+});
+
+
+describe('Comment Repository - update', () => {
+
+    beforeEach(async () => {
+        await Comment.deleteMany({});
+    });
+
+    it('should update the content of an existing comment and return true', async () => {
+        const commentUuid = 'c26b8105-3686-4415-ae16-bf70c58f1b3d';
+        await Comment.create({
+            commentUuid: commentUuid,
+            content: 'Original content',
+            userName: 'Tester',
+            userEmail: 'test@example.com',
+            chapterUuid: 'chapter-123',
+            memberCardUuid: 'card-123',
+            avatar_URL: 'http://image.com'
+        });
+
+        const newContent = 'Updated content!';
+        const result = await commentRepository.update(newContent, commentUuid);
+
+        expect(result).toBe(true);
+
+
+        const updatedDoc = await Comment.findOne({commentUuid});
+        expect(updatedDoc.content).toBe(newContent);
+    });
+
+    it('should return true even if no document matches the filter', async () => {
+        await expect(commentRepository.update('new content', 'non-existent-uuid'))
+            .rejects
+            .toThrow("Comment not found.");
+    });
 });
