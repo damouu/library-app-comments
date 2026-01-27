@@ -20,15 +20,53 @@ export const create = async (comment, chapterUUID, memberCardUuid, userName, use
 
 export const update = async (comment, commentUuid) => {
 
-    const filter = {commentUuid: commentUuid};
-    const update = {content: comment};
-
     try {
+
+        const filter = {commentUuid: commentUuid};
+        const update = {content: comment};
 
         const doc = await Comment.findOneAndUpdate(filter, update);
 
         if (!doc) {
             throw new Error("Comment not found.");
+        }
+        return true;
+    } catch (e) {
+        console.error("DB Error:", e);
+        throw e;
+    }
+
+};
+
+
+export const findByUuid = async (commentUuid) => {
+    try {
+        const filter = {commentUuid: commentUuid, deletedAt: null};
+        const response = await Comment.findOne(filter).exec();
+
+        if (!response) {
+            throw new Error("Comment not found.");
+        }
+
+        return response;
+    } catch (e) {
+        console.error("DB Error:", e);
+        throw e;
+    }
+}
+
+
+export const deleteComment = async (commentUuid) => {
+
+    try {
+
+        const filter = {commentUuid: commentUuid};
+        const update = {deletedAt: Date.now()};
+
+        const doc = await Comment.findOneAndUpdate(filter, update);
+
+        if (!doc) {
+            throw new Error("Comment not found.....");
         }
         return true;
     } catch (e) {

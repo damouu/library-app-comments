@@ -17,7 +17,7 @@ await jest.unstable_mockModule('../../middleware/auth.middleware.js', () => ({
 
 
 await jest.unstable_mockModule('../../services/comment.service.js', () => ({
-    saveComment: jest.fn(), updateComment: jest.fn(),
+    saveComment: jest.fn(), updateComment: jest.fn(), deleteComment: jest.fn()
 }));
 
 
@@ -54,6 +54,10 @@ describe('POST /api/chapter/:chapterUuid/comment', () => {
 
 
 describe('PUT /api/comment/:commentUuid', () => {
+
+    const updateData = {comment: 'New Content'};
+    const commentUuid = 'test-uuid';
+
     it('updates a comment', async () => {
         commentService.updateComment.mockResolvedValueOnce({
             comment: 'update', commentUuid: VALID_UUID
@@ -76,6 +80,83 @@ describe('PUT /api/comment/:commentUuid', () => {
             .send({comment: 'Hello world'});
 
         expect(res.statusCode).toBe(500);
+    });
+
+    it('should return 403 if service throws Unauthorized error', async () => {
+        commentService.updateComment.mockRejectedValue(new Error("Unauthorized: You do not own this comment."));
+
+        const res = await request(app)
+            .put(`/api/comment/${commentUuid}`)
+            .send(updateData);
+
+        expect(res.status).toBe(403);
+        expect(res.body.message).toContain("Unauthorized");
+    });
+
+    it('should return 404 if service throws Comment not found error', async () => {
+        commentService.updateComment.mockRejectedValue(new Error("Comment not found."));
+
+        const res = await request(app)
+            .put(`/api/comment/${commentUuid}`)
+            .send(updateData);
+
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe("Comment not found.");
+    });
+
+});
+
+
+describe('DELETE /api/comment/:commentUuid', () => {
+
+    const commentUuid = 'test-uuid';
+    const updateData = {comment: 'New Content'};
+
+    it('delete a comment', async () => {
+        commentService.deleteComment.mockResolvedValueOnce({
+            commentUuid: VALID_UUID
+        });
+
+        const res = await request(app)
+            .delete(`/api/comment/${VALID_UUID}`)
+            .send({commentUuid: VALID_UUID});
+
+        expect(res.statusCode).toBe(204);
+        expect(commentService.deleteComment).toHaveBeenCalledTimes(1);
+    });
+
+
+    it('fails when service throws', async () => {
+        commentService.deleteComment.mockRejectedValueOnce(new Error('Database down'));
+
+        const res = await request(app)
+            .delete(`/api/comment/${VALID_UUID}`)
+            .send({commentUuid: VALID_UUID});
+
+        expect(res.statusCode).toBe(500);
+    });
+
+
+    it('should return 403 if service throws Unauthorized error', async () => {
+        await commentService.deleteComment.mockRejectedValue(new Error("Unauthorized: You do not own this comment."));
+
+        const res = await request(app)
+            .delete(`/api/comment/${commentUuid}`)
+            .send(updateData);
+
+        expect(res.status).toBe(403);
+        expect(res.body.message).toContain("Unauthorized");
+    });
+
+    it('should return 404 if service throws Comment not found error', async () => {
+        await commentService.deleteComment.mockRejectedValue(new Error("Comment not found."));
+
+        const res = await request(app)
+            .delete(`/api/comment/${commentUuid}`)
+            .send(updateData);
+
+        expect(res.status).toBe(404);
+        expect(res.body.message).toBe("Comment not found.");
     });
 
 });
