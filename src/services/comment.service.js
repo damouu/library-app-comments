@@ -5,6 +5,24 @@ export const saveComment = async ({comment, chapterUUID, memberCardUuid, userNam
     return await commentRepository.create(comment, chapterUUID, memberCardUuid, userName, userEmail, avatar_URL);
 }
 
-export const updateComment = async ({comment, commentUuid}) => {
+export const updateComment = async ({comment, commentUuid, user_memberCardUUID}) => {
+
+    const existingComment = await commentRepository.findByUuid(commentUuid);
+
+    if (existingComment.memberCardUuid !== user_memberCardUUID) {
+        throw new Error("Unauthorized");
+    }
+
     return await commentRepository.update(comment, commentUuid);
+}
+
+export const deleteComment = async ({commentUuid, user_memberCardUUID}) => {
+
+    const existingComment = await commentRepository.findByUuid(commentUuid);
+
+    if (existingComment.memberCardUuid !== user_memberCardUUID) {
+        throw new Error("Unauthorized");
+    }
+
+    return await commentRepository.deleteComment(commentUuid);
 }
