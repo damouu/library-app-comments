@@ -38,12 +38,40 @@ export const updateComment = async (req, res) => {
         const cleanComment = sanitizeComment(comment);
 
         await commentService.updateComment({
-            comment: cleanComment, commentUuid: commentUuid,
+            comment: cleanComment, commentUuid: commentUuid, user_memberCardUUID: req.user.user_memberCardUUID
         });
 
         res.status(204).send();
     } catch (error) {
-        console.error("Error creating comment:", error);
-        res.status(500).json({message: "Failed to create comment."});
+        if (error.message.includes("Unauthorized")) {
+            return res.status(403).json({message: error.message});
+        }
+        if (error.message === "Comment not found.") {
+            return res.status(404).json({message: error.message});
+        }
+        res.status(500).json({message: "Server Error"});
+    }
+};
+
+
+export const deleteComment = async (req, res) => {
+
+    try {
+
+        const commentUuid = req.params.commentUuid;
+
+        await commentService.deleteComment({
+            commentUuid: commentUuid, user_memberCardUUID: req.user.user_memberCardUUID,
+        });
+
+        res.status(204).send();
+    } catch (error) {
+        if (error.message.includes("Unauthorized")) {
+            return res.status(403).json({message: error.message});
+        }
+        if (error.message === "Comment not found.") {
+            return res.status(404).json({message: error.message});
+        }
+        res.status(500).json({message: "Server Error"});
     }
 };
