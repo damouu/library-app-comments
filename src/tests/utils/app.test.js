@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import {register, trackRequests} from '../utils/metrics.js';
+import {register, trackRequests} from '../../utils/metrics.js';
 
 const app = express();
 app.use(trackRequests);

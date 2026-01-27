@@ -2,13 +2,15 @@ import mongoose from "mongoose";
 
 const commentSchema = new mongoose.Schema({
     memberCardUuid: {
-        type: mongoose.Schema.Types.UUID, required: true,
+        type: String, required: true,
     }, userName: {
         type: mongoose.Schema.Types.String, required: true,
     }, userEmail: {
         type: mongoose.Schema.Types.String, required: true,
     }, chapterUuid: {
-        type: mongoose.Schema.Types.UUID, required: true,
+        type: String, required: true,
+    }, commentUuid: {
+        type: String, required: true,
     }, avatar_URL: {
         type: mongoose.Schema.Types.String, required: true,
     }, content: {
