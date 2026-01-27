@@ -29,3 +29,21 @@ export const createComment = async (req, res) => {
         res.status(500).json({message: "Failed to create comment."});
     }
 };
+
+
+export const updateComment = async (req, res) => {
+    try {
+        const {comment} = req.body;
+        const commentUuid = req.params.commentUuid;
+        const cleanComment = sanitizeComment(comment);
+
+        await commentService.updateComment({
+            comment: cleanComment, commentUuid: commentUuid,
+        });
+
+        res.status(204).send();
+    } catch (error) {
+        console.error("Error creating comment:", error);
+        res.status(500).json({message: "Failed to create comment."});
+    }
+};
