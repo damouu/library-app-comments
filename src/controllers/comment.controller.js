@@ -74,4 +74,23 @@ export const deleteComment = async (req, res) => {
         }
         res.status(500).json({message: "Server Error"});
     }
+
 };
+
+export const getUserComment = async (req, res) => {
+
+    try {
+
+        const page = parseInt(req.query.page) || 1;
+        const size = parseInt(req.query.size) || 5;
+
+        const memberCardUuid = req.user.user_memberCardUUID;
+
+        const result = await commentService.getUserComment(page, size, memberCardUuid);
+
+        res.status(200).json(result);
+
+    } catch (error) {
+        res.status(500).json({message: "Error fetching comments"});
+    }
+}
