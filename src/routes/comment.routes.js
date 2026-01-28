@@ -12,4 +12,6 @@ router.delete('/comment/:commentUuid', authMiddleware, commentController.deleteC
 
 router.get('/user/comment', authMiddleware, commentController.getUserComment);
 
+router.get('/chapter/:chapterUuid/comment', commentController.getChapterComment);
+
 export default router;

@@ -17,7 +17,11 @@ await jest.unstable_mockModule('../../middleware/auth.middleware.js', () => ({
 
 
 await jest.unstable_mockModule('../../services/comment.service.js', () => ({
-    saveComment: jest.fn(), updateComment: jest.fn(), deleteComment: jest.fn(), getUserComment: jest.fn()
+    saveComment: jest.fn(),
+    updateComment: jest.fn(),
+    deleteComment: jest.fn(),
+    getUserComment: jest.fn(),
+    getComments: jest.fn()
 }));
 
 
@@ -190,6 +194,50 @@ describe('Comment Controller - getUserComment', () => {
         commentService.getUserComment.mockRejectedValue(new Error('DB failure'));
 
         const response = await request(app).get('/api/user/comment');
+
+        expect(response.status).toBe(500);
+        expect(response.body.message).toBe("Error fetching comments");
+    });
+
+    it('should use default pagination values if query params are missing', async () => {
+        commentService.getUserComment.mockResolvedValue({comments: []});
+
+        await request(app).get('/api/user/comment');
+
+
+        expect(commentService.getUserComment).toHaveBeenCalledWith(1, 5, VALID_UUID);
+    });
+});
+
+
+describe('Comment Controller - get a chapter comments', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should return 200 and the paginated comments', async () => {
+        const mockResult = {
+            comments: [{content: 'Test comment', commentUuid: 'uuid-1'}], pagination: {
+                currentPage: 1, totalPages: 1, count: 1, total: 1
+            }
+        };
+
+        commentService.getComments.mockResolvedValue(mockResult);
+
+        const response = await request(app)
+            .get(`/api/chapter/${VALID_UUID}/comment`)
+            .query({page: 1, size: 5});
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual(mockResult);
+
+        expect(commentService.getComments).toHaveBeenCalledWith(1, 5, VALID_UUID);
+    });
+
+    it('should return 500 when service throws an error', async () => {
+        commentService.getComments.mockRejectedValue(new Error('DB failure'));
+
+        const response = await request(app).get(`/api/chapter/${VALID_UUID}/comment`);
 
         expect(response.status).toBe(500);
         expect(response.body.message).toBe("Error fetching comments");

@@ -1,7 +1,12 @@
 import {jest} from '@jest/globals';
 
 await jest.unstable_mockModule('../../repository/comment.repository.js', () => ({
-    create: jest.fn(), update: jest.fn(), deleteComment: jest.fn(), findByUuid: jest.fn(), findByUser: jest.fn()
+    create: jest.fn(),
+    update: jest.fn(),
+    deleteComment: jest.fn(),
+    findByUuid: jest.fn(),
+    findByUser: jest.fn(),
+    findByChapter: jest.fn(),
 }));
 
 
@@ -144,3 +149,50 @@ describe('Comment Service - getUserComment', () => {
         expect(commentRepo.findByUser).toHaveBeenCalledWith(1, 5, mockUser);
     });
 });
+
+
+describe('Comment Service - getComments', () => {
+    const mockUser = 'user-123';
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    it('should clamp page and size to valid ranges', async () => {
+        commentRepo.findByChapter.mockResolvedValue({totalCount: 0});
+
+        await commentService.getComments(-5, 100, mockUser);
+
+
+        expect(commentRepo.findByChapter).toHaveBeenCalledWith(1, 50, mockUser);
+    });
+
+    it('should return a standard empty structure if repository returns no results', async () => {
+        commentRepo.findByChapter.mockResolvedValue(null);
+
+        const result = await commentService.getComments(1, 5, mockUser);
+
+        expect(result).toEqual({
+            comments: [], pagination: {
+                currentPage: 1, totalPages: 0, count: 0, total: 0
+            }
+        });
+    });
+
+    it('should return the repository result if data exists', async () => {
+
+        const repoData = {
+            comments: [{content: 'Hello'}], totalCount: 1, totalPages: 1
+        };
+
+        commentRepo.findByChapter.mockResolvedValue(repoData);
+
+        const result = await commentService.getComments(1, 5, mockUser);
+
+        expect(result).toBe(repoData);
+        expect(commentRepo.findByChapter).toHaveBeenCalledWith(1, 5, mockUser);
+    });
+});
+
+
+

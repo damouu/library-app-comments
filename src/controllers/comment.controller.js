@@ -94,3 +94,21 @@ export const getUserComment = async (req, res) => {
         res.status(500).json({message: "Error fetching comments"});
     }
 }
+
+export const getChapterComment = async (req, res) => {
+
+    try {
+
+        const page = parseInt(req.query.page) || 1;
+        const size = parseInt(req.query.size) || 5;
+
+        const chapterUuid = req.params.chapterUuid;
+
+        const result = await commentService.getComments(page, size, chapterUuid);
+
+        res.status(200).json(result);
+
+    } catch (error) {
+        res.status(500).json({message: "Error fetching comments"});
+    }
+}
