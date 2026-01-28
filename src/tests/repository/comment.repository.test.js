@@ -243,3 +243,94 @@ describe('Comment Repository - findByUser', () => {
 
 
 });
+
+
+describe('Comment Repository - findChapter', () => {
+
+    beforeEach(async () => {
+        await Comment.deleteMany({});
+    });
+
+    it('should return the comment when it exists and is not deleted', async () => {
+        const commentUuid = 'valid-uuid-123';
+        await Comment.create({
+            commentUuid,
+            content: 'Hello World',
+            userName: 'Tester',
+            userEmail: 'test@test.com',
+            chapterUuid: 'chap-1',
+            memberCardUuid: 'user-1',
+            avatar_URL: 'http://img.com',
+            deletedAt: null
+        });
+
+        const result = await commentRepository.findByChapter(1, 5, "chap-1");
+
+        expect(result).not.toBeNull();
+        expect(Array.isArray(result.data)).toBe(true);
+        expect(result.data[0].commentUuid).toBe(commentUuid);
+        expect(result.data[0].content).toBe('Hello World');
+    });
+
+
+    it('should return an empty array if the chapter has no comments', async () => {
+        const result = await commentRepository.findByChapter(1, 5, "non-existent-chap");
+
+        expect(result.data).toEqual([]);
+        expect(result.meta.count).toBe(0);
+    });
+
+});
+
+
+describe('Comment Repository - findChapter', () => {
+    const userId = 'user-123';
+
+    beforeEach(async () => {
+        await Comment.deleteMany({});
+    });
+
+    it('should correctly skip and limit results for pagination', async () => {
+        const commentsData = Array.from({length: 7}).map((_, i) => ({
+            commentUuid: `uuid-${i}`,
+            content: `Comment ${i}`,
+            chapterUuid: 'chap-1',
+            memberCardUuid: userId,
+            userName: 'Tester',
+            userEmail: 'test@test.com',
+            avatar_URL: 'http://img.com',
+            deletedAt: null
+        }));
+        await Comment.insertMany(commentsData);
+
+        const result = await commentRepository.findByChapter(2, 5, "chap-1");
+
+        expect(result.data.length).toBe(2);
+        expect(result.meta.Page).toBe(2);
+        expect(result.meta.count).toBe(2);
+        expect(result.data[0].memberCardUuid).toBeUndefined();
+        expect(result.data[0]._id).toBeUndefined();
+    });
+
+
+    it('should log a DB error and re-throw it', async () => {
+        const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+        });
+
+        const dbError = new Error('Connection Timeout');
+        jest.spyOn(Comment, 'find').mockImplementation(() => {
+            throw dbError;
+        });
+
+        await expect(commentRepository.findByChapter(1, 5, 'user-123'))
+            .rejects
+            .toThrow('Connection Timeout');
+
+        expect(consoleSpy).toHaveBeenCalledWith("DB Error:", dbError);
+
+        consoleSpy.mockRestore();
+        jest.restoreAllMocks();
+    });
+
+
+});
