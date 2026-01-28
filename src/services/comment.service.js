@@ -26,3 +26,30 @@ export const deleteComment = async ({commentUuid, user_memberCardUUID}) => {
 
     return await commentRepository.deleteComment(commentUuid);
 }
+
+
+export const getUserComment = async (page, size, memberCardUUID) => {
+
+    const validatedPage = Math.max(1, page);
+    const validatedSize = Math.min(50, Math.max(1, size));
+
+    const result = await commentRepository.findByUser(
+        validatedPage,
+        validatedSize,
+        memberCardUUID,
+    );
+
+    if (!result || result.totalCount === 0) {
+        return {
+            comments: [],
+            pagination: {
+                currentPage: validatedPage,
+                totalPages: 0,
+                count: 0,
+                total: 0
+            }
+        };
+    }
+
+    return result;
+}
