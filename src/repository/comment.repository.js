@@ -75,3 +75,31 @@ export const deleteComment = async (commentUuid) => {
     }
 
 };
+
+
+export const findByUser = async (validatedPage, validatedSize, memberCardUUID) => {
+
+    try {
+
+        const skip = (validatedPage - 1) * validatedSize;
+
+        const filter = {memberCardUuid: memberCardUUID, deletedAt: null};
+
+        const [comments, total] = await Promise.all([Comment.find(filter)
+            .select('-__v -memberCardUuid -_id -userName -userEmail -avatar_URL')
+            .sort({createdAt: -1})
+            .skip(skip)
+            .limit(validatedSize)
+            .exec(), Comment.countDocuments(filter)]);
+
+        return {
+            data: comments, meta: {
+                Page: validatedPage, Size: validatedSize, count: comments.length, total: total
+            }
+        }
+
+    } catch (e) {
+        console.error("DB Error:", e);
+        throw e;
+    }
+};

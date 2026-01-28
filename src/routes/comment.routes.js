@@ -10,4 +10,6 @@ router.put('/comment/:commentUuid', authMiddleware, commentController.updateComm
 
 router.delete('/comment/:commentUuid', authMiddleware, commentController.deleteComment);
 
+router.get('/user/comment', authMiddleware, commentController.getUserComment);
+
 export default router;
