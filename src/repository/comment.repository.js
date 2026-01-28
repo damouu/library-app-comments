@@ -103,3 +103,31 @@ export const findByUser = async (validatedPage, validatedSize, memberCardUUID) =
         throw e;
     }
 };
+
+
+export const findByChapter = async (validatedPage, validatedSize, chapterUuid) => {
+
+    try {
+
+        const skip = (validatedPage - 1) * validatedSize;
+
+        const filter = {chapterUuid: chapterUuid, deletedAt: null};
+
+        const [comments, total] = await Promise.all([Comment.find(filter)
+            .select('-__v -memberCardUuid -_id -userName -userEmail -avatar_URL')
+            .sort({createdAt: -1})
+            .skip(skip)
+            .limit(validatedSize)
+            .exec(), Comment.countDocuments(filter)]);
+
+        return {
+            data: comments, meta: {
+                Page: validatedPage, Size: validatedSize, count: comments.length, total: total
+            }
+        }
+
+    } catch (e) {
+        console.error("DB Error:", e);
+        throw e;
+    }
+};
