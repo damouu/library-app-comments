@@ -1,4 +1,4 @@
-const corsOptions = {
+export const corsOptions = {
     origin: (origin, callback) => {
         const allowedOrigins = ['http://localhost:3001', 'http://localhost:3000'];
         if (!origin || allowedOrigins.indexOf(origin) !== -1) {
@@ -8,5 +8,3 @@ const corsOptions = {
         }
     }, credentials: true, optionsSuccessStatus: 200
 };
-
-module.exports = corsOptions;
