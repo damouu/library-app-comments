@@ -7,10 +7,10 @@ import app from './app.js';
 
 dotenv.config();
 
-const uri = process.env.MONGO_URI;
+mongoose.connect(process.env.MONGODB_URI, {
+    dbName: process.env.MONGODB_DATABASE
 
-mongoose.connect(uri)
-    .then(() => console.log("Connected to MongoDB"))
+}).then(() => console.log("Connected to MongoDB"))
     .catch(err => console.error("MongoDB error:", err));
 
 app.use(express.json());
