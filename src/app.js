@@ -9,6 +9,6 @@ const app = express();
 app.use(express.json());
 app.use(trackRequests);
 app.use(cors(corsOptions));
-app.use('/api', commentRouter);
+app.use('/api/comment', commentRouter);
 
 export default app;
