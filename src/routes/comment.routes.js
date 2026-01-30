@@ -4,14 +4,14 @@ import * as commentController from '../controllers/comment.controller.js';
 
 const router = Router();
 
-router.post('/chapter/:chapterUuid/comment', authMiddleware, commentController.createComment);
+router.post('/chapter/:chapterUuid', authMiddleware, commentController.createComment);
 
-router.put('/comment/:commentUuid', authMiddleware, commentController.updateComment);
+router.put('/:commentUuid', authMiddleware, commentController.updateComment);
 
-router.delete('/comment/:commentUuid', authMiddleware, commentController.deleteComment);
+router.delete('/:commentUuid', authMiddleware, commentController.deleteComment);
 
-router.get('/user/comment', authMiddleware, commentController.getUserComment);
+router.get('/user', authMiddleware, commentController.getUserComment);
 
-router.get('/chapter/:chapterUuid/comment', commentController.getChapterComment);
+router.get('/public/chapter/:chapterUuid', commentController.getChapterComment);
 
 export default router;
