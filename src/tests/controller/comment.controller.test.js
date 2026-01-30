@@ -28,7 +28,7 @@ await jest.unstable_mockModule('../../services/comment.service.js', () => ({
 const commentService = await import('../../services/comment.service.js');
 const {default: app} = await import('../../app.js');
 
-describe('POST /api/chapter/:chapterUuid/comment', () => {
+describe('POST /api/comment/chapter/:chapterUuid', () => {
 
     it('creates a comment', async () => {
         commentService.saveComment.mockResolvedValueOnce({
@@ -36,7 +36,7 @@ describe('POST /api/chapter/:chapterUuid/comment', () => {
         });
 
         const res = await request(app)
-            .post(`/api/chapter/${VALID_UUID}/comment`)
+            .post(`/api/comment/chapter/:chapterUuid${VALID_UUID}`)
             .send({comment: 'Hello world'});
 
         expect(res.statusCode).toBe(201);
@@ -48,7 +48,7 @@ describe('POST /api/chapter/:chapterUuid/comment', () => {
         commentService.saveComment.mockRejectedValueOnce(new Error('Database down'));
 
         const res = await request(app)
-            .post(`/api/chapter/${VALID_UUID}/comment`)
+            .post(`/api/comment/chapter/:chapterUuid${VALID_UUID}`)
             .send({comment: 'Hello world'});
 
         expect(res.statusCode).toBe(500);
@@ -181,7 +181,7 @@ describe('Comment Controller - getUserComment', () => {
         commentService.getUserComment.mockResolvedValue(mockResult);
 
         const response = await request(app)
-            .get('/api/user/comment')
+            .get('/api/comment/user')
             .query({page: 1, size: 5});
 
         expect(response.status).toBe(200);
@@ -193,7 +193,7 @@ describe('Comment Controller - getUserComment', () => {
     it('should return 500 when service throws an error', async () => {
         commentService.getUserComment.mockRejectedValue(new Error('DB failure'));
 
-        const response = await request(app).get('/api/user/comment');
+        const response = await request(app).get('/api/comment/user');
 
         expect(response.status).toBe(500);
         expect(response.body.message).toBe("Error fetching comments");
@@ -202,7 +202,7 @@ describe('Comment Controller - getUserComment', () => {
     it('should use default pagination values if query params are missing', async () => {
         commentService.getUserComment.mockResolvedValue({comments: []});
 
-        await request(app).get('/api/user/comment');
+        await request(app).get('/api/comment/user');
 
 
         expect(commentService.getUserComment).toHaveBeenCalledWith(1, 5, VALID_UUID);
@@ -225,7 +225,7 @@ describe('Comment Controller - get a chapter comments', () => {
         commentService.getComments.mockResolvedValue(mockResult);
 
         const response = await request(app)
-            .get(`/api/chapter/${VALID_UUID}/comment`)
+            .get(`/api/comment/public/chapter/${VALID_UUID}`)
             .query({page: 1, size: 5});
 
         expect(response.status).toBe(200);
@@ -237,7 +237,7 @@ describe('Comment Controller - get a chapter comments', () => {
     it('should return 500 when service throws an error', async () => {
         commentService.getComments.mockRejectedValue(new Error('DB failure'));
 
-        const response = await request(app).get(`/api/chapter/${VALID_UUID}/comment`);
+        const response = await request(app).get(`/api/comment/public/chapter/${VALID_UUID}`);
 
         expect(response.status).toBe(500);
         expect(response.body.message).toBe("Error fetching comments");
@@ -246,7 +246,7 @@ describe('Comment Controller - get a chapter comments', () => {
     it('should use default pagination values if query params are missing', async () => {
         commentService.getUserComment.mockResolvedValue({comments: []});
 
-        await request(app).get('/api/user/comment');
+        await request(app).get('/api/comment/user');
 
 
         expect(commentService.getUserComment).toHaveBeenCalledWith(1, 5, VALID_UUID);
