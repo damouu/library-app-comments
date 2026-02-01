@@ -114,7 +114,7 @@ export const findByChapter = async (validatedPage, validatedSize, chapterUuid) =
         const filter = {chapterUuid: chapterUuid, deletedAt: null};
 
         const [comments, total] = await Promise.all([Comment.find(filter)
-            .select('-__v -memberCardUuid -_id -userName -userEmail -avatar_URL')
+            .select('-__v -memberCardUuid -_id -userEmail')
             .sort({createdAt: -1})
             .skip(skip)
             .limit(validatedSize)
