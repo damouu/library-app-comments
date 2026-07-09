@@ -42,7 +42,6 @@ export const findByUuid = async (commentUuid) => {
 
         return response;
     } catch (e) {
-        console.error("DB Error:", e);
         throw e;
     }
 }
