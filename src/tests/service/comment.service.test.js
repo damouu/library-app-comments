@@ -40,46 +40,56 @@ describe('comment.service.saveComment', () => {
 });
 
 
-describe('comment.service.updateComment', () => {
+describe('commentService.updateComment', () => {
+    const commentUuid = '68e35d01-509f-4378-bf62-f4a8c8d58acb';
+    const memberCardUuid = 'user-123';
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    it('successfully updates when user is the owner', async () => {
-        const payload = {
+    it('updates a comment when the authenticated user is the owner', async () => {
+
+        const request = {
             comment: 'Updated content',
-            commentUuid: '68e35d01-509f-4378-bf62-f4a8c8d58acb',
-            user_memberCardUUID: 'user-123'
+            commentUuid,
+            memberCardUuid
         };
 
-
         commentRepo.findByUuid.mockResolvedValue({
-            commentUuid: payload.commentUuid, memberCardUuid: 'user-123'
+            commentUuid,
+            memberCardUuid
         });
 
-        const repoResult = {success: true};
-        commentRepo.update.mockResolvedValue(repoResult);
+        const updatedComment = { success: true };
+        commentRepo.update.mockResolvedValue(updatedComment);
 
-        const result = await commentService.updateComment(payload);
+        const result = await commentService.updateComment(request);
 
-        expect(commentRepo.findByUuid).toHaveBeenCalledWith(payload.commentUuid);
-        expect(commentRepo.update).toHaveBeenCalledWith(payload.comment, payload.commentUuid);
-        expect(result).toBe(repoResult);
+        expect(commentRepo.findByUuid).toHaveBeenCalledWith(commentUuid);
+        expect(commentRepo.update).toHaveBeenCalledWith(
+            request.comment,
+            commentUuid
+        );
+
+        expect(result).toBe(updatedComment);
     });
 
-    it('throws 403 when user is NOT the owner', async () => {
-        const payload = {
-            comment: 'Evil Update', commentUuid: 'comment-abc', user_memberCardUUID: 'hacker-id'
+    it('throws an Unauthorized error when the authenticated user is not the owner', async () => {
+        const request = {
+            comment: 'Updated content',
+            commentUuid,
+            user_memberCardUUID: memberCardUuid
         };
 
-
         commentRepo.findByUuid.mockResolvedValue({
-            commentUuid: 'comment-abc', memberCardUuid: 'victim-id'
+            commentUuid,
+            memberCardUuid: 'another-user'
         });
 
-        await expect(commentService.updateComment(payload))
+        await expect(commentService.updateComment(request))
             .rejects
-            .toThrow("Unauthorized");
+            .toThrow('Unauthorized');
 
         expect(commentRepo.update).not.toHaveBeenCalled();
     });
