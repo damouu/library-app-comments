@@ -2,27 +2,33 @@ FROM node:lts-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
-RUN npm install
+RUN npm ci --ignore-scripts
 
-COPY . .
+COPY tsconfig.json ./
+COPY src/ ./src
 
-FROM node:lts-alpine AS runner
+RUN npm run build
+
+
+FROM node:lts-alpine AS production
 
 ENV NODE_ENV=production
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package.json package-lock.json ./
 
 RUN npm ci --omit=dev --ignore-scripts
 
-COPY --from=builder /app/src ./src
+COPY --from=builder /app/dist ./dist
 
-RUN addgroup -S nodeapp && adduser -S nodeapp -G nodeapp
+RUN addgroup -S nodeapp \
+    && adduser -S nodeapp -G nodeapp
+
 USER nodeapp
 
 EXPOSE 3000
 
-CMD ["node", "src/index.js"]
+CMD ["node", "dist/index.js"]
