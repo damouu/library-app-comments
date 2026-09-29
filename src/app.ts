@@ -36,6 +36,8 @@ const commentRouter = createCommentRouter(commentController);
 
 const app = express();
 
+app.disable("x-powered-by");
+
 app.use(express.json());
 app.use(trackRequests);
 
