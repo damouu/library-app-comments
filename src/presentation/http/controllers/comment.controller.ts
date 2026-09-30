@@ -30,9 +30,9 @@ export class CommentController {
     /**
      * Creates a new comment for a Chapter.
      *
-     * @param req - Express request containing chapterUuid in params and CreateCommentBody in body.
+     * @param req - Express request containing `chapterUuid` in params and `CreateCommentBody` in body.
      * @param res - Express response object.
-     * @return A 201 Created response containing the new comment payload
+     * @return {CommentCreatedResponseDTO}  201 Created response containing the new comment payload.
      */
     async createComment(req: Request<{ chapterUuid: string }, unknown, CreateCommentBody>, res: Response) {
         const dto = mapCreateCommentRequest(req);
@@ -45,13 +45,11 @@ export class CommentController {
     /**
      * Updates an existing comment for a Chapter.
      *
-     * @param req - Express request containing commentUuid in params and UpdateCommentBody in body.
+     * @param req - Express request containing `commentUuid` in params and `UpdateCommentBody` in body.
      * @param res - Express response object.
      * @return A 204 Created response.
      */
-    async updateComment(req: Request<{
-        commentUuid: string
-    }, unknown, UpdateCommentBody>, res: Response): Promise<void> {
+    async updateComment(req: Request<{ commentUuid: string }, unknown, UpdateCommentBody>, res: Response): Promise<void> {
         const dto = mapUpdateCommentRequest(req);
         await this.updateCommentUseCase.execute(dto);
         res.status(204).send();
@@ -60,7 +58,7 @@ export class CommentController {
     /**
      * Deletes an existing comment for a Chapter.
      *
-     * @param req - Express request containing commentUuid in params.
+     * @param req - Express request containing `commentUuid` in params.
      * @param res - Express response object.
      * @return A 204 Created response.
      */
@@ -76,6 +74,7 @@ export class CommentController {
      *
      * @param req - Express request containing the query params.
      * @param res - Express response used to send the CommentPage DTO.
+     * @return {CommentPage} returns a CommentPage DTO payload.
      */
     async getUserComments(req: Request<Record<string, never>, unknown, unknown, CommentPaginationQuery>, res: Response): Promise<void> {
         const dto = mapGetUserCommentsRequest(req);
@@ -90,6 +89,7 @@ export class CommentController {
      *
      * @param req - Contains the `chapterUuid` in the URL parameters and pagination/sorting filters in the query string.
      * @param res - Sends a `200 OK` status with the paginated comment payload.
+     * @return {CommentPage} returns a CommentPage DTO payload.
      */
     async getChapterComments(req: Request<{ chapterUuid: string }, unknown, unknown, CommentPaginationQuery>, res: Response): Promise<void> {
         const dto = mapGetCommentsRequest(req);
