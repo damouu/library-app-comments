@@ -1,4 +1,4 @@
-import {sanitizeComment} from "../utils/sanitize.js";
+import {sanitizeComment} from "../utils/sanitize.ts";
 import {CreateCommentDTO} from "./CreateCommentDTO.js";
 
 export function mapCreateCommentRequest(req) {
