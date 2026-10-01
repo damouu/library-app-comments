@@ -8,12 +8,19 @@ const port = Number(process.env.PORT) || 3000;
 
 async function start(): Promise<void> {
     const mongodbUri = process.env.MONGODB_URI;
+    const mongodbDatabase = process.env.MONGODB_DATABASE;
 
     if (!mongodbUri) {
         throw new Error("MONGODB_URI is not configured.");
     }
 
-    await mongoose.connect(mongodbUri);
+    if (!mongodbDatabase) {
+        throw new Error("MONGODB_DATABASE is not configured.");
+    }
+
+    await mongoose.connect(mongodbUri, {
+        dbName: mongodbDatabase,
+    });
 
     const memberConsumer = createMemberConsumer();
 

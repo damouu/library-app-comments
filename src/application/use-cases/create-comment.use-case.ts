@@ -12,14 +12,7 @@ export class CreateCommentUseCase {
     }
 
     async execute(dto: CreateCommentDTO): Promise<Comment> {
-        console.log("CREATE COMMENT memberCardUuid:", dto.memberCardUuid);
-
-        const member =
-            await this.memberProjectionRepository.findByMemberCardUuid(
-                dto.memberCardUuid
-            );
-
-        console.log("MEMBER PROJECTION:", member);
+        const member = await this.memberProjectionRepository.findByMemberCardUuid(dto.memberCardUuid);
 
         if (!member) {
             throw new Error("Member projection not found.");
