@@ -6,6 +6,14 @@ on:
     types:
       - completed
 
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: comments-gitops
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,3 +51,71 @@ jobs:
           registry: docker.io
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Checkout GitOps repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          repository: damouu/distributed-library-system
+          ref: main
+          token: ${{ secrets.GITOPS_TOKEN }}
+          path: gitops
+          fetch-depth: 0
+
+      - name: Update Comments image tag
+        working-directory: gitops
+        env:
+          IMAGE_SHA: ${{ env.SHA }}
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import os
+          import re
+
+          path = Path("kubernetes/comments/deployment.yaml")
+          content = path.read_text()
+
+          image_sha = os.environ["IMAGE_SHA"]
+
+          pattern = (
+              r"(^\s*image:\s*damou/library-app-comments:)[^\s]+$"
+          )
+
+          updated, count = re.subn(
+              pattern,
+              rf"\g<1>{image_sha}",
+              content,
+              count=1,
+              flags=re.MULTILINE,
+          )
+
+          if count != 1:
+              raise SystemExit(
+                  "Could not find exactly one library-app-comments image "
+                  "in kubernetes/comments/deployment.yaml"
+              )
+
+          path.write_text(updated)
+          PY
+
+      - name: Validate GitOps manifest
+        working-directory: gitops
+        run: |
+          git diff --check
+          git diff -- kubernetes/comments/deployment.yaml
+
+      - name: Commit GitOps manifest
+        working-directory: gitops
+        env:
+          IMAGE_SHA: ${{ env.SHA }}
+        run: |
+          if git diff --quiet -- kubernetes/comments/deployment.yaml; then
+            echo "Comments image is already using ${IMAGE_SHA}"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add kubernetes/comments/deployment.yaml
+          git commit -m "chore(comments): deploy ${IMAGE_SHA}"
+          git push origin HEAD:main
