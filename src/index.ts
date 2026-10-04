@@ -34,6 +34,6 @@ async function start(): Promise<void> {
 try {
     await start();
 } catch (error: unknown) {
-    console.error("Failed to start comments service:", error);
+    console.error("Failed to start Comments service:", error);
     process.exit(1);
 }
