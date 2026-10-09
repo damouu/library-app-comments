@@ -1,12 +1,12 @@
 import express from "express";
 
-import {trackRequests} from "./infrastructure/metrics/metrics.js";
+import {register, trackRequests} from "./infrastructure/metrics/metrics.js";
+
 import {errorHandler} from "./presentation/http/errors/error-handler.js";
 import {createCommentRouter} from "./presentation/http/routes/comment.routes.js";
 
 import {MongoCommentRepository} from "./infrastructure/repositories/mongo-comment.repository.js";
 import {MongoCommentQueryService} from "./infrastructure/queries/mongo-comment-query.service.js";
-
 
 import {CreateCommentUseCase} from "./application/use-cases/create-comment.use-case.js";
 import {UpdateCommentUseCase} from "./application/use-cases/update-comment.use-case.js";
@@ -39,6 +39,17 @@ const app = express();
 app.disable("x-powered-by");
 
 app.use(express.json());
+
+app.get("/metrics", async (_req, res, next) => {
+    try {
+        res.setHeader("Content-Type", register.contentType);
+        res.end(await register.metrics());
+    } catch (error: unknown) {
+        next(error);
+    }
+});
+
+
 app.use(trackRequests);
 
 app.use("/api/comment", commentRouter);
